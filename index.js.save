@@ -1,0 +1,24 @@
+const Discord = require('discord.js');
+const bot = new Discord.Client();
+const config = require('./config.json');
+
+bot.on("ready", function(){
+	console.log("Bender-bot is operational");
+});
+
+bot.on("message", function(message){
+	if(message.author.equals(bot.user)) return;
+	
+	if(!message.content.startsWith(config.prefix)) return;
+	
+	var args = message.content.substring(config.prefix.length).split(" ");
+	
+	switch(args[0].toLowerCase()){
+		case "ping":
+			message.channel.sendMessage("Pong!");
+			break
+;
+	}	
+});
+
+bot.login(config.token);
