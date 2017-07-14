@@ -2,18 +2,8 @@ const Discord = require('discord.js');
 const bot = new Discord.Client();
 const config = require('./config.json');
 
-
-var dice = [
-	"1",
-	"2",
-	"3",
-	"4",
-	"5",
-	"6"
-]
-
 bot.on("ready", function(){
-	console.log("Bender-bot is operational");
+	console.log("Bender [BOT] is operational");
 });
 
 bot.on("message", function(message){
@@ -25,27 +15,21 @@ bot.on("message", function(message){
 	console.log(message.author.username+" typed: "+message);
 	switch(args[0]){
 		case "ping":
-			require("./commands/ping").ping(message);
-			//message.channel.send("Pong!");
-			//message.delete();
+			require("./commands/ping").run(message);
 			break;
 		case "info":
-			message.channel.send("https://media.giphy.com/media/hB5Lpvi8pmg7K/giphy.gif");
-			message.delete();
+			require("./commands/info").run(bot, message);
 			break;
 		case "diceroll":
-			message.channel.send(message.author.toString()+" rolled a "+dice[Math.floor(Math.random()*dice.length)]);
-			message.delete();
+			require("./commands/diceroll").run(message);
 			break;
 		case "help":
 			message.channel.send({embed:{
 				color:3447003,
-				author:{
-					name: bot.user.username,
-					icon_url: bot.user.avatarURL	
+				title: "Commands",
+				image:{
+						url:"https://i.ytimg.com/vi/jLDsxmCAM6A/hqdefault.jpg"
 				},
-				title: "Bender_Bot",
-				description: "This is a list of commands bender_bot will listen to",
 				fields:[
 					{
 						name: "ping",
