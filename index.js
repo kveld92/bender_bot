@@ -8,9 +8,9 @@ bot.on("ready", function(){
 
 bot.on("message", function(message){
 	if(message.author.equals(bot.user)) return;
-	
+
 	if(!message.content.startsWith(config.prefix)) return;
-	
+
 	var args = message.content.substring(config.prefix.length).split(" ");
 	console.log(message.author.username+" typed: "+message);
 	switch(args[0].toLowerCase()){
@@ -50,9 +50,9 @@ bot.on("message", function(message){
 					},
 					{
 						name: "info",
-						value: "Info about the amazing bender_bot"				
+						value: "Info about the amazing bender_bot"
 					}
-				]	
+				]
 				}
 			}).then(msg => msg.delete(30000));
 			message.delete();
@@ -60,7 +60,11 @@ bot.on("message", function(message){
 		default:
 			message.channel.send("Invalid command, type !help for a list of commands.").then(msg => msg.delete(5000));
 			message.delete();
-	}	
+	}
+});
+
+bot.on("disconnect", event => {
+	console.log("Disconnected: " + event.reason + " (" + event.code + ")");
 });
 
 bot.login(config.token);
