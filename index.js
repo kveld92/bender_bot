@@ -13,7 +13,7 @@ bot.on("message", function(message){
 	
 	var args = message.content.substring(config.prefix.length).split(" ");
 	console.log(message.author.username+" typed: "+message);
-	switch(args[0]){
+	switch(args[0].toLowerCase()){
 		case "ping":
 			require("./commands/ping").run(message);
 			break;
@@ -22,6 +22,15 @@ bot.on("message", function(message){
 			break;
 		case "diceroll":
 			require("./commands/diceroll").run(message);
+			break;
+		case "play":
+			require("./commands/music").run(message, args[1]);
+			break;
+		case "skip":
+			require("./commands/music").skip(message);
+			break;
+		case "stop":
+			require("./commands/music").stop(message);
 			break;
 		case "help":
 			message.channel.send({embed:{
@@ -45,11 +54,11 @@ bot.on("message", function(message){
 					}
 				]	
 				}
-			});
+			}).then(msg => msg.delete(30000));
 			message.delete();
 			break;
 		default:
-			message.channel.send("Invalid command, type !help for a list of commands.");
+			message.channel.send("Invalid command, type !help for a list of commands.").then(msg => msg.delete(5000));
 			message.delete();
 	}	
 });
