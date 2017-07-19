@@ -4,7 +4,7 @@ var servers = {};
 var streamOptions = {volume:0.2};
 var ytdlOptions = {filter:"audioonly", quality:"lowest"};
 
-var msgTimer = 5000;
+var msgTimer = 30000;
 var playing = false;
 
 //functions
@@ -13,6 +13,7 @@ function play(connection, message){
 	var server = servers[message.guild.id];
 	console.log(server.queue[0]);
 	server.dispatcher = connection.playStream(ytdl(server.queue[0]['link'],ytdlOptions),streamOptions);
+	servers[message.guild.id].now_playing = server.queue[0]['info'];
 	server.queue.shift();
 		server.dispatcher.on("end", function(){
 		if(server.queue[0]){
@@ -50,7 +51,7 @@ function run(message, link){
 			message.reply("The requested video (" +link+ ") does not exist or cannot be played.").then(msg => msg.delete(msgTimer));
 		} else {
 			if(!servers[message.guild.id]){
-				servers[message.guild.id] = { queue:[] };
+				servers[message.guild.id] = { queue:[], now_playing:"" };
 			}
 			var server = servers[message.guild.id];
 			server.queue.push({info:info["title"], link:link, author:message.author.username});
@@ -62,7 +63,14 @@ function run(message, link){
 		}
 	});
 }
-
+function np(message){
+	if(!playing){
+		var server = servers[message.guild.id];
+		message.reply("Currently playing:"+ server.now_playing).then(msg => msg.delete(msgTimer));
+	} else{
+		message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimer));
+	}
+}
 function skip(message){
 	if(!playing){
 		var server = servers[message.guild.id];
@@ -86,4 +94,4 @@ function stop(message){
 	message.delete();
 }
 
-module.exports = {run, skip, stop}
+module.exports = {run, skip, stop, np}

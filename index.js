@@ -32,6 +32,9 @@ bot.on("message", function(message){
 		case "stop":
 			require("./commands/music").stop(message);
 			break;
+		case "np":
+			require("./commands/music").np(message);
+			break;
 		case "help":
 			message.channel.send({embed:{
 				color:3447003,
@@ -66,7 +69,7 @@ bot.on("message", function(message){
 					}
 				]
 				}
-			}).then(msg => msg.delete(30000));
+			}).then(msg => msg.delete(60000));
 			message.delete();
 			break;
 		default:
