@@ -50,7 +50,19 @@ bot.on("message", function(message){
 					},
 					{
 						name: "info",
-						value: "Info about the amazing bender_bot"
+						value: "Info about the amazing bender_bot."
+					},
+					{
+						name: "play",
+						value: "Play a song from youtube."
+					},
+					{
+						name: "skip",
+						value: "Skips the current song."
+					},
+					{
+						name: "stop",
+						value: "Stops the current queue"
 					}
 				]
 				}
