@@ -35,6 +35,9 @@ bot.on("message", function(message){
 		case "np":
 			require("./commands/music").np(message);
 			break;
+		case "queue":
+			require("./commands/music").queue(message);
+			break;
 		case "help":
 			message.channel.send({embed:{
 				color:3447003,
