@@ -70,6 +70,7 @@ function run(message, cmd, arg){
 		});
 	}
 	else if(cmd =="search"){
+		arg = arg.replace(/_/g, " ");
 		request("https://www.googleapis.com/youtube/v3/search?part=id&type=video&q=" + encodeURIComponent(arg) + "&key=" + ytApiKey, (error, response, body) => {
 			var json = JSON.parse(body);
 			if("error" in json) {
@@ -80,7 +81,6 @@ function run(message, cmd, arg){
 				return;
 			} else {
 				var link = "https://www.youtube.com/watch?v=" + json.items[0].id.videoId;
-
 				if(!servers[message.guild.id]){
 					servers[message.guild.id] = { queue:[], now_playing:"" };
 				}
@@ -98,7 +98,6 @@ function run(message, cmd, arg){
 						message.delete();
 					}
 				});
-				console.log(json.items);
 			}
 		});
 	}
