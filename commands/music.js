@@ -33,11 +33,16 @@ function play(connection, message){
 }
 
 //exports
-function run(message, cmd ,link){
+function run(message, cmd, arg){
+	if(!message.member.voiceChannel){
+		message.reply("Please join a voice channel before using this command.").then(msg => msg.delete(msgTimerShort));
+		message.delete();
+		return;
+	}
 	if(cmd == "link"){
-		if(link){
+		if(arg){
 			var regExp = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
-			if(!link.match(regExp)){
+			if(!arg.match(regExp)){
 				message.reply("Please provide a valid youtube link. Example: https://www.youtube.com/watch?v=c7eG283AUGM").then(msg => msg.delete(msgTimerShort));
 				message.delete();
 				return;
@@ -47,20 +52,15 @@ function run(message, cmd ,link){
 			message.delete();
 			return;
 		}
-		if(!message.member.voiceChannel){
-			message.reply("Please join a voice channel before using this command.").then(msg => msg.delete(msgTimerShort));
-			message.delete();
-			return;
-		}
 		if(!servers[message.guild.id]){
 			servers[message.guild.id] = { queue:[], now_playing:"" };
 		}
-		ytdl.getInfo(link, (error, info) => {
+		ytdl.getInfo(arg.toString(), (error, info) => {
 			if(error) {
-				message.reply("The requested video (" +link+ ") does not exist or cannot be played.").then(msg => msg.delete(msgTimerShort));
+				message.reply("The requested video (" +arg+ ") does not exist or cannot be played.").then(msg => msg.delete(msgTimerShort));
 			} else {
 				var server = servers[message.guild.id];
-				server.queue.push({info:info["title"], link:link, author:message.author});
+				server.queue.push({info:info["title"], link:arg, author:message.author});
 				message.reply('"' + info["title"] + '" has been added to the queue.').then(msg => msg.delete(msgTimer));
 				if(!message.guild.voiceConnection) message.member.voiceChannel.join().then(function(connection){
 					play(connection, message);
@@ -68,29 +68,47 @@ function run(message, cmd ,link){
 				message.delete();
 			}
 		});
-	} else{
+	}
+	else if(cmd =="search"){
+		request("https://www.googleapis.com/youtube/v3/search?part=id&type=video&q=" + encodeURIComponent(arg) + "&key=" + ytApiKey, (error, response, body) => {
+			var json = JSON.parse(body);
+			if("error" in json) {
+				message.reply("An error has occurred: " + json.error.errors[0].message + " - " + json.error.errors[0].reason);
+				return;
+			} else if(json.items.length === 0) {
+				message.reply("No videos found matching the search criteria.");
+				return;
+			} else {
+				var link = "https://www.youtube.com/watch?v=" + json.items[0].id.videoId;
+
+				if(!servers[message.guild.id]){
+					servers[message.guild.id] = { queue:[], now_playing:"" };
+				}
+
+				ytdl.getInfo(link.toString(), (error, info) => {
+					if(error) {
+						message.reply("The requested video (" +link+ ") does not exist or cannot be played.").then(msg => msg.delete(msgTimerShort));
+					} else {
+						var server = servers[message.guild.id];
+						server.queue.push({info:info["title"], link:link, author:message.author});
+						message.reply('"' + info["title"] + '" has been added to the queue.').then(msg => msg.delete(msgTimer));
+						if(!message.guild.voiceConnection) message.member.voiceChannel.join().then(function(connection){
+							play(connection, message);
+						});
+						message.delete();
+					}
+				});
+				console.log(json.items);
+			}
+		});
+	}
+	else{
 		message.reply("Please provide a valid play command. Use the help command to see a list of commands").then(msg => msg.delete(msgTimerShort));;
 		message.delete();
 	}
 	hasBeenRun = true;
 }
 //repeat function??
-
-function search(message){
-	var searchList = {};
-	request("https://www.googleapis.com/youtube/v3/search?part=id&type=video&q=" + encodeURIComponent(message) + "&key=" + ytApiKey, (error, response, body) => {
-		var json = JSON.parse(body);
-		if("error" in json) {
-			message.reply("An error has occurred: " + json.error.errors[0].message + " - " + json.error.errors[0].reason);
-		} else if(json.items.length === 0) {
-			message.reply("No videos found matching the search criteria.");
-		} else {
-			var link = "https://www.youtube.com/watch?v=" + json.items[0].id.videoId;
-			console.log(json.items);
-		}
-	});
-	return searchList;
-}
 
 function queue(message){
 	if(!playing){
@@ -160,7 +178,7 @@ function skip(message){
 				message.reply("The queue needs to have atleast 1 or more songs").then(msg => msg.delete(msgTimerShort));
 			}
 		} else{
-			message.reply("You need to put a song in the queue before you can skip them doofus").then(msg => msg.delete(msgTimerShort));
+			message.reply("You need to add a song to the queue first.").then(msg => msg.delete(msgTimerShort));
 		}
 	} else{
 		message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
@@ -190,4 +208,4 @@ function stop(message){
 	message.delete();
 }
 
-module.exports = {run, skip, stop, np, queue, search}
+module.exports = {run, skip, stop, np, queue}
