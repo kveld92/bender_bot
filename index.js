@@ -24,7 +24,7 @@ bot.on("message", function(message){
 			require("./commands/diceroll").run(message);
 			break;
 		case "play":
-			require("./commands/music").run(message, args[1]);
+			require("./commands/music").run(message, args[1], args[2]);
 			break;
 		case "skip":
 			require("./commands/music").skip(message);
@@ -37,6 +37,9 @@ bot.on("message", function(message){
 			break;
 		case "queue":
 			require("./commands/music").queue(message);
+			break;
+		case "search":
+			require("./commands/search").search(message);
 			break;
 		case "help":
 			message.channel.send({embed:{
