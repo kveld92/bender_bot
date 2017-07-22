@@ -20,7 +20,7 @@ function convertMS(millisec) {
 function run(bot, message){
 		message.channel.send({embed: {
 			color: 3447003,
-			title: "Bender [BOT]",
+			title: "Bender :robot:",
 			description: "Created by <@256062857987227659>",
 			thumbnail: {
 					url:"http://i.imgur.com/GD0lKbV.png"

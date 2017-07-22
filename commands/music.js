@@ -61,7 +61,7 @@ function run(message, cmd, arg){
 			} else {
 				var server = servers[message.guild.id];
 				server.queue.push({info:info["title"], link:arg, author:message.author});
-				message.reply('"' + info["title"] + '" has been added to the queue.').then(msg => msg.delete(msgTimer));
+				message.reply('"' + info["title"] + '" has been added to the queue.').then(msg => msg.delete(msgTimerShort));
 				if(!message.guild.voiceConnection) message.member.voiceChannel.join().then(function(connection){
 					play(connection, message);
 				});

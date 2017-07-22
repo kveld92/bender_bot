@@ -15,7 +15,7 @@ bot.on("message", function(message){
 	console.log(message.author.username+" typed: "+message);
 	switch(args[0].toLowerCase()){
 		case "ping":
-			require("./commands/ping").run(message);
+			require("./commands/ping").run(bot, message);
 			break;
 		case "info":
 			require("./commands/info").run(bot, message);
@@ -45,29 +45,28 @@ bot.on("message", function(message){
 				image:{
 						url:"https://i.ytimg.com/vi/jLDsxmCAM6A/hqdefault.jpg"
 				},
+				thumbnail: {
+						url:"http://i.imgur.com/GD0lKbV.png"
+				},
 				fields:[
 					{
-						name: "ping",
-						value: "Bender will pong back!"
-					},
-					{
-						name: "diceroll",
+						name: `${config.prefix}diceroll`,
 						value: "Bender will roll a dice for you!"
 					},
 					{
-						name: "info",
-						value: "Info about the amazing bender_bot."
+						name: `${config.prefix}info`,
+						value: "Displays some technical information."
 					},
 					{
-						name: "play",
-						value: "Play a song from youtube."
+						name: `${config.prefix}play`,
+						value: `Play a song from youtube. \nUse ${config.prefix}play link <link> or ${config.prefix}play search <search term>. \nUse '_' instead of space for your search term. \nExample: ${config.prefix}play search bag_raiders_shooting_star`
 					},
 					{
-						name: "skip",
+						name: `${config.prefix}skip`,
 						value: "Skips the current song."
 					},
 					{
-						name: "stop",
+						name: `${config.prefix}stop`,
 						value: "Stops the current queue"
 					}
 				]
@@ -76,7 +75,7 @@ bot.on("message", function(message){
 			message.delete();
 			break;
 		default:
-			message.channel.send("Invalid command, type !help for a list of commands.").then(msg => msg.delete(5000));
+			message.channel.send(`Invalid command, type ${config.prefix}help for a list of commands.`).then(msg => msg.delete(5000));
 			message.delete();
 	}
 });
