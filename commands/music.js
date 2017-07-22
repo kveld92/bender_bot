@@ -122,7 +122,8 @@ function queue(message){
 				}
 				var song_amount = 0;
 				for(var i=0; i < server.queue.length; i++){
-					var name = "["+i+"]: " + server.queue[i]["info"];
+					var nr = i+1;
+					var name = "["+nr+"]: " + server.queue[i]["info"];
 					var value = "requested by "+server.queue[i]["author"];
 					respons.embed.fields.push({name:name, value:value});
 					song_amount++;
