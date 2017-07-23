@@ -14,6 +14,9 @@ bot.on("message", function(message){
 	var args = message.content.substring(config.prefix.length).split(" ");
 	console.log(message.author.username+" typed: "+message);
 	switch(args[0].toLowerCase()){
+		case "summon":
+			require("./commands/summon").run(message);
+			break;
 		case "ping":
 			require("./commands/ping").run(bot, message);
 			break;

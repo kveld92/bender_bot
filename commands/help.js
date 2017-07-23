@@ -12,6 +12,14 @@ function run(message){
     },
     fields:[
       {
+        name: `${config.prefix}ping`,
+        value: "Pongs the latency!"
+      },
+      {
+        name: `${config.prefix}summon`,
+        value: "Summons bender to your voice channel!"
+      },
+      {
         name: `${config.prefix}roll`,
         value: "Bender will roll a dice for you!"
       },
@@ -26,6 +34,10 @@ function run(message){
       {
         name: `${config.prefix}ytl`,
         value: `Play a song from youtube using a link. \n${config.prefix}ytl <link>`
+      },
+      {
+        name: `${config.prefix}np`,
+        value: "Displays the current song"
       },
       {
         name: `${config.prefix}repeat`,
