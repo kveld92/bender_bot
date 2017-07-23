@@ -185,6 +185,8 @@ function stop(message){
 	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
 	message.delete();
 }
+
+//set pause to false when skipping while paused
 function pause(message){
 	if(!playing){
 		if(hasBeenRun){
@@ -212,18 +214,19 @@ function resume(message){
 	message.delete();
 }
 
+//disable skip when repeat is on.
 function repeat(message){
 	if(!playing){
 		if(hasBeenRun){
 			var server = servers[message.guild.id];
 			if(server.repeat == true){
 				server.repeat = false;
-				message.reply("Repeat set to on :repeat: ").then(msg => msg.delete(msgTimerShort));
+				message.channel.send("Repeat set to on :repeat: ");
 			}
 			else {
 				server.queue.shift();
 				server.repeat = true;
-				message.reply("Repeat set to off :repeat: ").then(msg => msg.delete(msgTimerShort));
+				message.channel.send("Repeat set to off :repeat: ");
 			}
 		} else message.reply("You need to play atleast one song before you can use this command... :cd:").then(msg => msg.delete(msgTimerShort));
 	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
