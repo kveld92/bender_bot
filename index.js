@@ -51,48 +51,7 @@ bot.on("message", function(message){
 			require("./commands/music").repeat(message);
 			break;
 		case "help":
-			message.channel.send({embed:{
-				color:3447003,
-				title: "Commands",
-				image:{
-						url:"https://i.ytimg.com/vi/jLDsxmCAM6A/hqdefault.jpg"
-				},
-				thumbnail: {
-						url:"http://i.imgur.com/GD0lKbV.png"
-				},
-				fields:[
-					{
-						name: `${config.prefix}roll`,
-						value: "Bender will roll a dice for you!"
-					},
-					{
-						name: `${config.prefix}info`,
-						value: "Displays some technical information."
-					},
-					{
-						name: `${config.prefix}yts`,
-						value: `Play a song from youtube with a search term. ${config.prefix}yts<search term>.`
-					},
-					{
-						name: `${config.prefix}ytl`,
-						value: `Play a song from youtube using a link. \n${config.prefix}ytl <link>`
-					},
-					{
-						name: `${config.prefix}repeat`,
-						value: "Repeat will repeat the next song added to the list."
-					},
-					{
-						name: `${config.prefix}skip`,
-						value: "Skips the current song."
-					},
-					{
-						name: `${config.prefix}stop`,
-						value: "Stops the current queue"
-					}
-				]
-				}
-			}).then(msg => msg.delete(60000));
-			message.delete();
+			require("./commands/help").run(message);
 			break;
 		default:
 			message.channel.send(`Invalid command, type ${config.prefix}help for a list of commands.`).then(msg => msg.delete(5000));

@@ -144,13 +144,14 @@ function np(message){
 		if(hasBeenRun){
 			var server = servers[message.guild.id];
 			if(server.now_playing == ""){
+				var repeat = (server.repeat) ? "ON" : "OFF";
 				var respons = {embed:{
 					color:3447003,
 					thumbnail: {
 							url:"http://i.imgur.com/GD0lKbV.png"
 					},
 					title: ":cd: Currently playing",
-					description:"Silence... :dash: "
+					description:"Silence... :dash: "+ "\n :repeat: "+repeat
 					}
 				}
 				message.channel.send(respons).then(msg => msg.delete(msgTimerShort));
