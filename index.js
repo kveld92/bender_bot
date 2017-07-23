@@ -38,6 +38,15 @@ bot.on("message", function(message){
 		case "queue":
 			require("./commands/music").queue(message);
 			break;
+		case "pause":
+			require("./commands/music").pause(message);
+			break;
+		case "resume":
+			require("./commands/music").resume(message);
+			break;
+		case "repeat":
+			require("./commands/music").repeat(message);
+			break;
 		case "help":
 			message.channel.send({embed:{
 				color:3447003,

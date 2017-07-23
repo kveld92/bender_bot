@@ -17,8 +17,8 @@ function play(connection, message){
 	var server = servers[message.guild.id];
 	server.dispatcher = connection.playStream(ytdl(server.queue[0]['link'],ytdlOptions),streamOptions);
 	servers[message.guild.id].now_playing = server.queue[0]['info'] + " requested by "+server.queue[0]['author'];
-	server.queue.shift();
-		server.dispatcher.on("end", function(){
+	if(server.repeat) server.queue.shift();
+	server.dispatcher.on("end", function(){
 		if(server.queue[0]){
 			setTimeout(function(){
 				play(connection, message)
@@ -53,7 +53,7 @@ function run(message, cmd, arg){
 			return;
 		}
 		if(!servers[message.guild.id]){
-			servers[message.guild.id] = { queue:[], now_playing:"" };
+			servers[message.guild.id] = { queue:[], now_playing:"", paused:false, repeat: false };
 		}
 		ytdl.getInfo(arg.toString(), (error, info) => {
 			if(error) {
@@ -82,7 +82,7 @@ function run(message, cmd, arg){
 			} else {
 				var link = "https://www.youtube.com/watch?v=" + json.items[0].id.videoId;
 				if(!servers[message.guild.id]){
-					servers[message.guild.id] = { queue:[], now_playing:"" };
+					servers[message.guild.id] = { queue:[], now_playing:"", paused:false, repeat: false };
 				}
 
 				ytdl.getInfo(link.toString(), (error, info) => {
@@ -131,15 +131,9 @@ function queue(message){
 				if(song_amount == 1) respons.embed.title = ":musical_note: Current queue | " + song_amount + " entry";
 				else respons.embed.title = ":notes: Current queue | " + song_amount + " entries ";
 				message.channel.send(respons).then(msg => msg.delete(msgTimer));
-			} else{
-				message.reply("There are no more songs left in the queue.").then(msg => msg.delete(msgTimerShort));
-			}
-		} else{
-			message.reply("The queue is empty.").then(msg => msg.delete(msgTimerShort));
-		}
-	} else {
-		message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
-	}
+			} else message.reply("There are no more songs left in the queue.").then(msg => msg.delete(msgTimerShort));
+		} else message.reply("The queue is empty.").then(msg => msg.delete(msgTimerShort));
+	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
 	message.delete();
 }
 
@@ -158,12 +152,8 @@ function np(message){
 				}
 				message.channel.send(respons).then(msg => msg.delete(msgTimer));
 			}
-		} else{
-			message.reply("No songs have been queued yet.").then(msg => msg.delete(msgTimerShort));
-		}
-	} else{
-		message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
-	}
+		} else message.reply("No songs have been queued yet.").then(msg => msg.delete(msgTimerShort));
+	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
 	message.delete();
 }
 
@@ -174,15 +164,9 @@ function skip(message){
 			if(server.queue.length > 0){
 				if(server.dispatcher) server.dispatcher.end();
 				message.reply("Skipping song").then(msg => msg.delete(msgTimer));
-			} else{
-				message.reply("The queue needs to have atleast 1 or more songs").then(msg => msg.delete(msgTimerShort));
-			}
-		} else{
-			message.reply("You need to add a song to the queue first.").then(msg => msg.delete(msgTimerShort));
-		}
-	} else{
-		message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
-	}
+			} else message.reply("The queue needs to have atleast 1 or more songs").then(msg => msg.delete(msgTimerShort));
+		} else message.reply("You need to add a song to the queue first.").then(msg => msg.delete(msgTimerShort));
+	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
 	message.delete();
 }
 
@@ -195,17 +179,54 @@ function stop(message){
 				if(server.dispatcher){
 					server.dispatcher.end();
 					message.reply("Queue stopped").then(msg => msg.delete(msgTimer));
-				} else{
-					message.rely("Play a song before using this command... :face_palm:").then(msg => msg.delete(msgTimerShort));
-				}
-			} else{
-				message.reply("There is no song playing at the moment. :face_palm:")
-			}
+				} else message.rely("Play a song before using this command... :face_palm:").then(msg => msg.delete(msgTimerShort));
+			} else message.reply("There is no song playing at the moment. :face_palm:")
 		} else message.reply("Play a song before using this command... :face_palm:").then(msg => msg.delete(msgTimerShort));
-	} else{
-		message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
-	}
+	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
+	message.delete();
+}
+function pause(message){
+	if(!playing){
+		if(hasBeenRun){
+			var server = servers[message.guild.id];
+			if(!server.paused){
+				server.dispatcher.pause();
+				message.channel.send(":pause_button: " + server.now_playing).then(msg => msg.delete(msgTimerShort));
+				server.paused = true;
+			}else message.reply("Song already paused").then(msg => msg.delete(msgTimerShort));
+		} else message.reply("Play a song before using this command... :face_palm:").then(msg => msg.delete(msgTimerShort));
+	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
+	message.delete();
+}
+function resume(message){
+	if(!playing){
+		if(hasBeenRun){
+			var server = servers[message.guild.id];
+			if(server.paused){
+				server.dispatcher.resume();
+				message.channel.send(":play_pause: "+server.now_playing).then(msg => msg.delete(msgTimerShort));
+				server.paused = false;
+			}else message.reply("Song already playing").then(msg => msg.delete(msgTimerShort));
+		} else message.reply("Play a song before using this command... :face_palm:").then(msg => msg.delete(msgTimerShort));
+	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
 	message.delete();
 }
 
-module.exports = {run, skip, stop, np, queue}
+function repeat(message){
+	if(!playing){
+		if(hasBeenRun){
+			var server = servers[message.guild.id];
+			if(server.repeat == true){
+				server.repeat = false;
+				message.reply("Repeat set to on :repeat: ").then(msg => msg.delete(msgTimerShort));
+			}
+			else {
+				server.queue.shift();
+				server.repeat = true;
+				message.reply("Repeat set to off :repeat: ").then(msg => msg.delete(msgTimerShort));
+			}
+		} else message.reply("You need to play atleast one song before you can use this command... :cd:").then(msg => msg.delete(msgTimerShort));
+	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
+	message.delete();
+}
+module.exports = {run, skip, stop, np, queue, pause, resume, repeat}
