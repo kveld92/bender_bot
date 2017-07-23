@@ -20,11 +20,14 @@ bot.on("message", function(message){
 		case "info":
 			require("./commands/info").run(bot, message);
 			break;
-		case "diceroll":
+		case "roll":
 			require("./commands/diceroll").run(message);
 			break;
-		case "play":
-			require("./commands/music").run(message, args[1], args[2]);
+		case "ytl":
+			require("./commands/music").run(message, "link", args[1]);
+			break;
+		case "yts":
+			require("./commands/music").run(message, "search", args);
 			break;
 		case "skip":
 			require("./commands/music").skip(message);
@@ -59,7 +62,7 @@ bot.on("message", function(message){
 				},
 				fields:[
 					{
-						name: `${config.prefix}diceroll`,
+						name: `${config.prefix}roll`,
 						value: "Bender will roll a dice for you!"
 					},
 					{
@@ -67,8 +70,16 @@ bot.on("message", function(message){
 						value: "Displays some technical information."
 					},
 					{
-						name: `${config.prefix}play`,
-						value: `Play a song from youtube. \nUse ${config.prefix}play link <link> or ${config.prefix}play search <search term>. \nUse '_' instead of space for your search term. \nExample: ${config.prefix}play search bag_raiders_shooting_star`
+						name: `${config.prefix}yts`,
+						value: `Play a song from youtube with a search term. ${config.prefix}play search <search term>.`
+					},
+					{
+						name: `${config.prefix}ytl`,
+						value: `Play a song from youtube using a link. \n${config.prefix}ytl <link>`
+					},
+					{
+						name: `${config.prefix}repeat`,
+						value: "Repeats the next song. Please use this command before playing the song you want repeated."
 					},
 					{
 						name: `${config.prefix}skip`,

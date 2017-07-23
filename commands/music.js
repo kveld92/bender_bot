@@ -17,7 +17,7 @@ function play(connection, message){
 	var server = servers[message.guild.id];
 	server.dispatcher = connection.playStream(ytdl(server.queue[0]['link'],ytdlOptions),streamOptions);
 	servers[message.guild.id].now_playing = server.queue[0]['info'] + " requested by "+server.queue[0]['author'];
-	if(server.repeat) server.queue.shift();
+	if(!server.repeat) server.queue.shift();
 	server.dispatcher.on("end", function(){
 		if(server.queue[0]){
 			setTimeout(function(){
@@ -43,7 +43,7 @@ function run(message, cmd, arg){
 		if(arg){
 			var regExp = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
 			if(!arg.match(regExp)){
-				message.reply("Please provide a valid youtube link. Example: https://www.youtube.com/watch?v=c7eG283AUGM").then(msg => msg.delete(msgTimerShort));
+				message.reply("Please provide a valid youtube link. Example: https://www.youtube.com/watch?v=c7eG283AUGM").then(msg => msg.delete(msgTimer));
 				message.delete();
 				return;
 			}
@@ -70,7 +70,9 @@ function run(message, cmd, arg){
 		});
 	}
 	else if(cmd =="search"){
-		arg = arg.replace(/_/g, " ");
+		arg.shift();
+		arg = arg.join(" ");
+		arg = arg.toString();
 		request("https://www.googleapis.com/youtube/v3/search?part=id&type=video&q=" + encodeURIComponent(arg) + "&key=" + ytApiKey, (error, response, body) => {
 			var json = JSON.parse(body);
 			if("error" in json) {
@@ -116,6 +118,9 @@ function queue(message){
 				var respons = {embed:{
 					color:3447003,
 					title: "",
+					thumbnail: {
+							url:"http://i.imgur.com/GD0lKbV.png"
+					},
 					fields:[]
 					}
 				}
@@ -141,12 +146,25 @@ function np(message){
 		if(hasBeenRun){
 			var server = servers[message.guild.id];
 			if(server.now_playing == ""){
-				message.reply("There is no song playing.").then(msg => msg.delete(msgTimerShort));
-			} else{
 				var respons = {embed:{
 					color:3447003,
-					title: ":musical_note: Currently playing",
-					description:server.now_playing
+					thumbnail: {
+							url:"http://i.imgur.com/GD0lKbV.png"
+					},
+					title: ":cd: Currently playing",
+					description:"Silence... :dash: "
+					}
+				}
+				message.channel.send(respons).then(msg => msg.delete(msgTimerShort));
+			} else{
+				var repeat = (server.repeat) ? "ON" : "OFF";
+				var respons = {embed:{
+					color:3447003,
+					thumbnail: {
+							url:"http://i.imgur.com/GD0lKbV.png"
+					},
+					title: ":cd: Currently playing",
+					description:server.now_playing + "\n :repeat: "+repeat
 					}
 				}
 				message.channel.send(respons).then(msg => msg.delete(msgTimer));
@@ -165,10 +183,10 @@ function skip(message){
 					if(server.dispatcher){
 						server.dispatcher.end();
 						server.paused = false;
-						message.reply("Skipping song").then(msg => msg.delete(msgTimer));
+						message.reply("Skipping song :fast_forward: ").then(msg => msg.delete(msgTimer));
 					}
 				} else message.reply("The queue needs to have atleast 1 or more songs").then(msg => msg.delete(msgTimerShort));
-			}else message.reply("Unable to skip when song when repeat is on.").then(msg => msg.delete(msgTimerShort));
+			}else message.reply("Unable to skip song when repeat is on.").then(msg => msg.delete(msgTimerShort));
 		} else message.reply("You need to add a song to the queue first.").then(msg => msg.delete(msgTimerShort));
 	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
 	message.delete();
@@ -182,7 +200,7 @@ function stop(message){
 				server.queue = [];
 				if(server.dispatcher){
 					server.dispatcher.end();
-					message.reply("Queue stopped").then(msg => msg.delete(msgTimer));
+					message.reply("Queue stopped :stop_button: ").then(msg => msg.delete(msgTimer));
 				} else message.rely("Play a song before using this command... :face_palm:").then(msg => msg.delete(msgTimerShort));
 			} else message.reply("There is no song playing at the moment. :face_palm:")
 		} else message.reply("Play a song before using this command... :face_palm:").then(msg => msg.delete(msgTimerShort));
@@ -225,11 +243,10 @@ function repeat(message){
 				server.repeat = false;
 			}
 			else {
-				server.queue.shift();
 				server.repeat = true;
 			}
 			(server.repeat) ? message.channel.send(":repeat: ON") : message.channel.send(":repeat: OFF")
-		} else message.reply("You need to play atleast one song before you can use this command... :cd:").then(msg => msg.delete(msgTimerShort));
+		} else message.reply("You need to play atleast one song before you can use this command...").then(msg => msg.delete(msgTimerShort));
 	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
 	message.delete();
 }
