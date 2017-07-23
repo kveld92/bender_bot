@@ -70,42 +70,40 @@ function run(message, cmd, arg){
 		});
 	}
 	else if(cmd =="search"){
+		if(arg[1]){
 		arg.shift();
-		arg = arg.join(" ");
-		arg = arg.toString();
-		request("https://www.googleapis.com/youtube/v3/search?part=id&type=video&q=" + encodeURIComponent(arg) + "&key=" + ytApiKey, (error, response, body) => {
-			var json = JSON.parse(body);
-			if("error" in json) {
-				message.reply("An error has occurred: " + json.error.errors[0].message + " - " + json.error.errors[0].reason);
-				return;
-			} else if(json.items.length === 0) {
-				message.reply("No videos found matching the search criteria.");
-				return;
-			} else {
-				var link = "https://www.youtube.com/watch?v=" + json.items[0].id.videoId;
-				if(!servers[message.guild.id]){
-					servers[message.guild.id] = { queue:[], now_playing:"", paused:false, repeat: false };
-				}
-
-				ytdl.getInfo(link.toString(), (error, info) => {
-					if(error) {
-						message.reply("The requested video (" +link+ ") does not exist or cannot be played.").then(msg => msg.delete(msgTimerShort));
-					} else {
-						var server = servers[message.guild.id];
-						server.queue.push({info:info["title"], link:link, author:message.author});
-						message.reply('"' + info["title"] + '" has been added to the queue.').then(msg => msg.delete(msgTimer));
-						if(!message.guild.voiceConnection) message.member.voiceChannel.join().then(function(connection){
-							play(connection, message);
-						});
-						message.delete();
+			arg = arg.join(" ");
+			arg = arg.toString();
+			request("https://www.googleapis.com/youtube/v3/search?part=id&type=video&q=" + encodeURIComponent(arg) + "&key=" + ytApiKey, (error, response, body) => {
+				var json = JSON.parse(body);
+				if("error" in json) {
+					message.reply("An error has occurred: " + json.error.errors[0].message + " - " + json.error.errors[0].reason);
+					return;
+				} else if(json.items.length === 0) {
+					message.reply("No videos found matching the search criteria.");
+					return;
+				} else {
+					var link = "https://www.youtube.com/watch?v=" + json.items[0].id.videoId;
+					if(!servers[message.guild.id]){
+						servers[message.guild.id] = { queue:[], now_playing:"", paused:false, repeat: false };
 					}
-				});
-			}
-		});
-	}
-	else{
-		message.reply("Please provide a valid play command. Use the help command to see a list of commands").then(msg => msg.delete(msgTimerShort));;
-		message.delete();
+
+					ytdl.getInfo(link.toString(), (error, info) => {
+						if(error) {
+							message.reply("The requested video (" +link+ ") does not exist or cannot be played.").then(msg => msg.delete(msgTimerShort));
+						} else {
+							var server = servers[message.guild.id];
+							server.queue.push({info:info["title"], link:link, author:message.author});
+							message.reply('"' + info["title"] + '" has been added to the queue.').then(msg => msg.delete(msgTimer));
+							if(!message.guild.voiceConnection) message.member.voiceChannel.join().then(function(connection){
+								play(connection, message);
+							});
+							message.delete();
+						}
+					});
+				}
+			});
+		}else message.reply("Please provide a search term. Example: headhunterz destiny").then(msg => msg.delete(msgTimerShort));
 	}
 	hasBeenRun = true;
 }
