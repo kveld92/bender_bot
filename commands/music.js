@@ -107,7 +107,6 @@ function run(message, cmd, arg){
 	}
 	hasBeenRun = true;
 }
-//repeat function??
 
 function queue(message){
 	if(!playing){
@@ -161,10 +160,15 @@ function skip(message){
 	if(!playing){
 		if(hasBeenRun){
 			var server = servers[message.guild.id];
-			if(server.queue.length > 0){
-				if(server.dispatcher) server.dispatcher.end();
-				message.reply("Skipping song").then(msg => msg.delete(msgTimer));
-			} else message.reply("The queue needs to have atleast 1 or more songs").then(msg => msg.delete(msgTimerShort));
+			if(!server.repeat){
+				if(server.queue.length > 0){
+					if(server.dispatcher){
+						server.dispatcher.end();
+						server.paused = false;
+						message.reply("Skipping song").then(msg => msg.delete(msgTimer));
+					}
+				} else message.reply("The queue needs to have atleast 1 or more songs").then(msg => msg.delete(msgTimerShort));
+			}else message.reply("Unable to skip when song when repeat is on.").then(msg => msg.delete(msgTimerShort));
 		} else message.reply("You need to add a song to the queue first.").then(msg => msg.delete(msgTimerShort));
 	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
 	message.delete();
@@ -186,7 +190,6 @@ function stop(message){
 	message.delete();
 }
 
-//set pause to false when skipping while paused
 function pause(message){
 	if(!playing){
 		if(hasBeenRun){
@@ -214,20 +217,18 @@ function resume(message){
 	message.delete();
 }
 
-//disable skip when repeat is on.
 function repeat(message){
 	if(!playing){
 		if(hasBeenRun){
 			var server = servers[message.guild.id];
 			if(server.repeat == true){
 				server.repeat = false;
-				message.channel.send("Repeat set to on :repeat: ");
 			}
 			else {
 				server.queue.shift();
 				server.repeat = true;
-				message.channel.send("Repeat set to off :repeat: ");
 			}
+			(server.repeat) ? message.channel.send(":repeat: ON") : message.channel.send(":repeat: OFF")
 		} else message.reply("You need to play atleast one song before you can use this command... :cd:").then(msg => msg.delete(msgTimerShort));
 	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
 	message.delete();
