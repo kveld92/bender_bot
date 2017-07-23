@@ -71,7 +71,7 @@ bot.on("message", function(message){
 					},
 					{
 						name: `${config.prefix}yts`,
-						value: `Play a song from youtube with a search term. ${config.prefix}play search <search term>.`
+						value: `Play a song from youtube with a search term. ${config.prefix}yts<search term>.`
 					},
 					{
 						name: `${config.prefix}ytl`,
@@ -79,7 +79,7 @@ bot.on("message", function(message){
 					},
 					{
 						name: `${config.prefix}repeat`,
-						value: "Repeats the next song. Please use this command before playing the song you want repeated."
+						value: "Repeat will repeat the next song added to the list."
 					},
 					{
 						name: `${config.prefix}skip`,

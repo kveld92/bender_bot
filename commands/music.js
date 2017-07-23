@@ -243,6 +243,11 @@ function repeat(message){
 			else {
 				server.repeat = true;
 			}
+			if(!server.queue[0]== ""){
+				if(server.queue[0]["info"] == server.now_playing.split("requested").shift().trim()){
+					server.queue.shift();
+				}
+			}
 			(server.repeat) ? message.channel.send(":repeat: ON") : message.channel.send(":repeat: OFF")
 		} else message.reply("You need to play atleast one song before you can use this command...").then(msg => msg.delete(msgTimerShort));
 	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
