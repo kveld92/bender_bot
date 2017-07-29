@@ -3,7 +3,7 @@ const request = require("request");
 
 var servers = {};
 var streamOptions = {volume:0.2};
-var ytdlOptions = {filter:"audioonly", quality:"lowest"};
+var ytdlOptions = {filter:"audioonly", quality:"lowest", highWaterMark:130712};
 
 var msgTimer = 30000;
 var msgTimerShort = 5000;
@@ -105,6 +105,36 @@ function run(message, cmd, arg){
 			});
 		}else message.reply("Please provide a search term. Example: headhunterz destiny").then(msg => msg.delete(msgTimerShort));
 	}
+	else if(cmd == "playlist"){
+		if(arg){
+			var playlistId = arg.split("&list=").pop().split("&")[0];
+			if(playlistId){
+				request("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=" + playlistId + "&key=" + ytApiKey , (error, response, body) => {
+					var json = JSON.parse(body);
+					if ("error" in json) {
+						message.reply("An error has occurred: " + json.error.errors[0].message + " - " + json.error.errors[0].reason).then(msg => msg.delete(msgTimerShort));
+					} else if (json.items.length === 0) {
+							message.reply("No videos found within playlist.").then(msg => msg.delete(msgTimerShort));
+					} else {
+							if(!servers[message.guild.id]){
+								servers[message.guild.id] = { queue:[], now_playing:"", paused:false, repeat: false };
+							}
+							var server = servers[message.guild.id];
+							console.log(json);
+							for (var i = 0; i < json.items.length; i++) {
+								var link = "https://www.youtube.com/watch?v="+json.items[i].snippet.resourceId.videoId;
+								var info = json.items[i].snippet.title;
+								server.queue.push({info:info, link:link, author:message.author});
+							}
+							if(!message.guild.voiceConnection) message.member.voiceChannel.join().then(function(connection){
+								play(connection, message);
+							});
+						}
+				});
+			} else message.reply("Please provide a valid youtube playlist").then(msg => msg.delete(msgTimerShort));
+		} else message.reply("Please provide a valid link").then(msg => msg.delete(msgTimerShort));
+		message.delete();
+	}
 	hasBeenRun = true;
 }
 
@@ -201,7 +231,7 @@ function stop(message){
 					server.dispatcher.end();
 					message.reply("Queue stopped :stop_button: ").then(msg => msg.delete(msgTimer));
 				} else message.rely("Play a song before using this command... :face_palm:").then(msg => msg.delete(msgTimerShort));
-			} else message.reply("There is no song playing at the moment. :face_palm:")
+			} else message.reply("There is no song playing at the moment. :face_palm:").then(msg => msg.delete(msgTimerShort));
 		} else message.reply("Play a song before using this command... :face_palm:").then(msg => msg.delete(msgTimerShort));
 	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
 	message.delete();
@@ -254,4 +284,20 @@ function repeat(message){
 	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
 	message.delete();
 }
-module.exports = {run, skip, stop, np, queue, pause, resume, repeat}
+
+function summon(message){
+	if(!playing){
+		if(hasBeenRun){
+			var server = servers[message.guild.id];
+			if(server.now_playing == ""){
+				message.reply("Use yts or ytl instead to start playing a song").then(msg => msg.delete(msgTimerShort));
+			} else {
+			  message.member.voiceChannel.join();
+			}
+		} else message.reply("Use yts or ytl instead to start playing a song").then(msg => msg.delete(msgTimerShort));
+	} else message.reply("Please wait a moment before using this command").then(msg => msg.delete(msgTimerShort));
+	message.delete();
+}
+module.exports = {run}
+
+module.exports = {run, skip, stop, np, queue, pause, resume, repeat, summon}

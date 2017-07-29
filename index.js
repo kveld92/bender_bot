@@ -4,7 +4,11 @@ const config = require('./config.json');
 const util = require('./util/functions.js');
 
 bot.on("ready", function(){
-	console.log("Bender [BOT] is operational");
+	util.getDateTime(function(dateTime){
+		console.log("Bender [BOT] is operational @ "+dateTime);
+		var string = `${config.prefix}help | ` + dateTime;
+		bot.user.setGame(string);
+	});
 });
 
 bot.on("message", function(message){
@@ -35,7 +39,7 @@ bot.on("message", function(message){
 			console.log(message.author.username+" typed: "+message);
 			switch(args[0].toLowerCase()){
 				case "summon":
-					require("./commands/summon").run(message);
+					require("./commands/music").summon(message);
 					break;
 				case "ping":
 					require("./commands/ping").run(bot, message);
@@ -51,6 +55,9 @@ bot.on("message", function(message){
 					break;
 				case "yts":
 					require("./commands/music").run(message, "search", args);
+					break;
+				case "ytpl":
+					require("./commands/music").run(message, "playlist", args[1]);
 					break;
 				case "skip":
 					require("./commands/music").skip(message);
@@ -76,6 +83,7 @@ bot.on("message", function(message){
 				case "help":
 					require("./commands/help").run(message);
 					break;
+				//admin commands
 				case "link":
 					require("./commands/link").run(message);
 					break;
@@ -84,6 +92,9 @@ bot.on("message", function(message){
 					break;
 				case "unblock":
 					require("./commands/block").unblock(message, args[1]);
+					break;
+				case "blacklist":
+					require("./commands/block").blacklist(message);
 					break;
 				default:
 					message.channel.send(`Invalid command, type ${config.prefix}help for a list of commands.`).then(msg => msg.delete(5000));

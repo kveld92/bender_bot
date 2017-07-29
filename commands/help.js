@@ -3,7 +3,7 @@ const config = require('../config.json');
 function run(message){
   message.channel.send({embed:{
     color:3447003,
-    title: "Commands",
+    title: "COMMANDS :gear: ",
     image:{
         url:"https://i.ytimg.com/vi/jLDsxmCAM6A/hqdefault.jpg"
     },
@@ -17,7 +17,7 @@ function run(message){
       },
       {
         name: `${config.prefix}summon`,
-        value: "Summons bender to your voice channel!"
+        value: "Summons bender to another voice channel! If bender is not in a voice channel yet, use yts and ytl instead."
       },
       {
         name: `${config.prefix}roll`,

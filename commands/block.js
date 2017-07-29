@@ -14,7 +14,7 @@ function run(message, id, reason){
           }else{
             fs.exists('blacklist.json', function(exists){
               if(!exists){ //if not exist create file, bugged;
-                var blacklist = "{users:[{id:"+id+",reason:"+reason+"}]}";
+                var blacklist = "{users:[{id:0,reason:faggot}]}";
                 fs.writeFile('blacklist.json', blacklist, (err) => {
                     if(err) throw err;
                     message.reply(data+"added to blacklist for reason: "+reason).then(msg => msg.delete(5000));
@@ -23,9 +23,8 @@ function run(message, id, reason){
                   });
               }else{
                 fs.readFile('blacklist.json', 'utf8', function readFileCallback(err, data){
-                  var blacklist;
                   if(err) throw err;
-                  blacklist = JSON.parse(data);
+                  var blacklist = JSON.parse(data);
                   blacklist.user.push({id:id, reason:reason});
                   fs.writeFile('blacklist.json', JSON.stringify(blacklist), (err) => {
                       if(err) throw err;
@@ -50,9 +49,8 @@ function unblock(message, id){
     if(id){
       if(id.length == 18 && id.match(/^[0-9]+$/)){
         fs.readFile('blacklist.json', 'utf8', function readFileCallback(err, data){
-          var blacklist;
           if(err) throw err;
-          blacklist = JSON.parse(data);
+          var blacklist = JSON.parse(data);
           var removed = false;
           for(var i = 0; i < blacklist.user.length; i++) {
             if(blacklist.user[i]["id"] == id) {
@@ -79,4 +77,29 @@ function unblock(message, id){
     }else {message.delete();return;}
   }else {message.delete();return;}
 }
-module.exports = {run, unblock}
+
+function blacklist(message){
+  if(message.author.id == 256062857987227659){
+    fs.readFile('blacklist.json', 'utf8', function readFileCallback(err, data){
+      if(err) throw err;
+      var blacklist = JSON.parse(data);
+      var respons = {embed:{
+        color:3447003,
+        title: "Blacklist :no_entry_sign:",
+        thumbnail: {
+            url:"http://i.imgur.com/GD0lKbV.png"
+        },
+        fields:[]
+        }
+      }
+      for(var i=0; i < blacklist.user.length; i++){
+        var id = "["+i+"] User: "+blacklist.user[i].id;
+        var reason = blacklist.user[i].reason;
+        respons.embed.fields.push({name:id, value:reason});
+      }
+      message.author.send(respons);
+    });
+  }else{ message.delete(); return; }
+  message.delete();
+}
+module.exports = {run, unblock, blacklist}
