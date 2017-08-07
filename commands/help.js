@@ -16,10 +16,6 @@ function run(message){
         value: "Pongs the latency!"
       },
       {
-        name: `${config.prefix}summon`,
-        value: "Summons bender to another voice channel! If bender is not in a voice channel yet, use yts and ytl instead."
-      },
-      {
         name: `${config.prefix}roll`,
         value: "Bender will roll a dice for you!"
       },
@@ -36,12 +32,16 @@ function run(message){
         value: `Play a song from youtube using a link. \n${config.prefix}ytl <link>`
       },
       {
+        name: `${config.prefix}ytpl`,
+        value: `Add songs from a youtube playlist using a link. \n${config.prefix}ytpl <link>`
+      },
+      {
         name: `${config.prefix}np`,
         value: "Displays the current song"
       },
       {
         name: `${config.prefix}repeat`,
-        value: "Repeat will repeat the next song added to the list."
+        value: "Repeat will repeat the next song on the list."
       },
       {
         name: `${config.prefix}skip`,

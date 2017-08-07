@@ -112,7 +112,7 @@ function run(message, cmd, arg){
 				request("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=" + playlistId + "&key=" + ytApiKey , (error, response, body) => {
 					var json = JSON.parse(body);
 					if ("error" in json) {
-						message.reply("An error has occurred: " + json.error.errors[0].message + " - " + json.error.errors[0].reason).then(msg => msg.delete(msgTimerShort));
+						message.reply("Please provide a valid youtube playlist url").then(msg => msg.delete(msgTimerShort));
 					} else if (json.items.length === 0) {
 							message.reply("No videos found within playlist.").then(msg => msg.delete(msgTimerShort));
 					} else {
@@ -120,12 +120,14 @@ function run(message, cmd, arg){
 								servers[message.guild.id] = { queue:[], now_playing:"", paused:false, repeat: false };
 							}
 							var server = servers[message.guild.id];
-							console.log(json);
+							var counter = 0;
 							for (var i = 0; i < json.items.length; i++) {
 								var link = "https://www.youtube.com/watch?v="+json.items[i].snippet.resourceId.videoId;
 								var info = json.items[i].snippet.title;
 								server.queue.push({info:info, link:link, author:message.author});
+								counter++;
 							}
+							message.reply(counter+" songs added.").then(msg => msg.delete(msgTimerShort));
 							if(!message.guild.voiceConnection) message.member.voiceChannel.join().then(function(connection){
 								play(connection, message);
 							});
